@@ -69,7 +69,6 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
     return res.status(500).json({ error: 'Not all values provided' })
   }
 
-  // This throws an error if input is invalid
   const { email, password } = req.body
 
   const hashedPassword = await hashPassword(password)
@@ -104,7 +103,6 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
 
   const { email, password } = req.body
 
-  // This throws an error if credentials are invalid
   const user = await authenticateUser(email, password)
 
   await session.create({ userId: user.id, roles: [user.role] })
