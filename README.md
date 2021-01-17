@@ -4,6 +4,10 @@ I basically just extracted everything out and made it work. I didn't test the `p
 
 This project requires you two work with a Next.js application and use Prisma for Database Access.
 
+```
+yarn add next-passport
+```
+
 1. Add these lines to your `schema.prisma`
 
 ```
