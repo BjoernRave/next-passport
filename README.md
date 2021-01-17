@@ -1,5 +1,7 @@
 The code is extracted from the `blitz-js` repository. All kudos goes to them: https://blitzjs.com
 
+I basically just extracted everything out and made it work. I didn't test the `passport` stuff yet and there are still some `console.log` in the code.
+
 This project requires you two work with a Next.js application and use Prisma for Database Access.
 
 1. Add these lines to your `schema.prisma`
