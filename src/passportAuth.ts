@@ -70,7 +70,6 @@ export function passportAuth(prisma: any, config: PassportConfig) {
     const strategyName = strategy.name as string;
 
     if (req.query.auth.length === 1) {
-      console.log(`Starting authentication via ${strategyName}...`);
       if (req.query.redirectUrl) {
         middleware.push(async (req, _res, next) => {
           assert(session, 'Missing Blitz sessionMiddleware!');
@@ -86,7 +85,6 @@ export function passportAuth(prisma: any, config: PassportConfig) {
         )
       );
     } else if (req.query.auth[1] === 'callback') {
-      console.log(`Processing callback for ${strategyName}...`);
       middleware.push(
         connectMiddleware((req, res, next) => {
           assert(session, 'Missing Blitz sessionMiddleware!');
@@ -99,9 +97,6 @@ export function passportAuth(prisma: any, config: PassportConfig) {
 
                 if (!error) {
                   if (result === false) {
-                    console.log(
-                      `Login via ${strategyName} failed - usually this means the user did not authenticate properly with the provider`
-                    );
                     error = `Login failed`;
                   }
                   assert(

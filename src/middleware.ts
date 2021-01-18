@@ -35,10 +35,8 @@ export async function handleRequestWithMiddleware(
   middleware: Middleware | Middleware[],
   {
     throwOnError = true,
-    stackPrintOnError = true,
   }: {
     throwOnError?: boolean;
-    stackPrintOnError?: boolean;
   } = {}
 ) {
   if (!(res as MiddlewareResponse).blitzCtx) {
@@ -59,7 +57,7 @@ export async function handleRequestWithMiddleware(
     await handler(
       req as MiddlewareRequest,
       res as MiddlewareResponse,
-      error => {
+      (error) => {
         if (error) {
           throw error;
         }
@@ -68,24 +66,14 @@ export async function handleRequestWithMiddleware(
   } catch (error) {
     if (req.method === 'GET') {
       // This GET method check is so we don't .end() the request for SSR requests
-      console.log('Error while processing the request');
     } else if (res.writableFinished) {
-      console.log(
-        'Error occured in middleware after the response was already sent to the browser'
-      );
     } else {
       res.statusCode =
         (error as any).statusCode || (error as any).status || 500;
       res.end(error.message || res.statusCode.toString());
-      console.log('Error while processing the request');
     }
     if (error._clearStack) {
       delete error.stack;
-    }
-    if (stackPrintOnError) {
-      console.log(error);
-    } else {
-      console.log(error, true, false, false);
     }
 
     if (throwOnError) throw error;
@@ -108,7 +96,7 @@ export function compose(middleware: Middleware[]) {
   }
 
   // Return a single middleware function that composes everything passed in
-  return function(req, res, next): Promise<any> {
+  return function (req, res, next): Promise<any> {
     // last called middleware #
     let index = -1;
 
@@ -167,7 +155,7 @@ function withCallbackHandler(
   return new Promise((resolve, reject) => {
     // Rule doesn't matter since we are inside new Promise()
     //eslint-disable-next-line @typescript-eslint/no-floating-promises
-    middleware(req, res, err => {
+    middleware(req, res, (err) => {
       if (err) reject(err);
       else resolve(next());
     });

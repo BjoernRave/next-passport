@@ -1,9 +1,6 @@
-import { useState } from 'react';
 import { COOKIE_CSRF_TOKEN } from './constants';
-import { publicDataStore } from './public-data-store';
 import { PublicData } from './types';
 import { readCookie } from './utils/cookie';
-import { useIsomorphicLayoutEffect } from './utils/hooks';
 
 export interface SessionModel extends Record<any, any> {
   handle: string;
@@ -67,21 +64,6 @@ export const getAntiCSRFToken = () => readCookie(COOKIE_CSRF_TOKEN);
 export interface PublicDataWithLoading extends PublicData {
   isLoading: boolean;
 }
-
-export const useSession: () => PublicDataWithLoading = () => {
-  const [publicData, setPublicData] = useState(publicDataStore.emptyPublicData);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useIsomorphicLayoutEffect(() => {
-    // Initialize on mount
-    setPublicData(publicDataStore.getData());
-    setIsLoading(false);
-    const subscription = publicDataStore.observable.subscribe(setPublicData);
-    return subscription.unsubscribe;
-  }, []);
-
-  return { ...publicData, isLoading };
-};
 
 /*
  * This will ensure a user is logged in before using the query/mutation.

@@ -73,7 +73,6 @@ const defaultConfig = (prisma: any): SessionConfig => ({
     } catch (error) {
       // Session doesn't exist in DB for some reason, so create it
       if (error.code === 'P2016') {
-        console.log("Could not update session because it's not in the DB");
       } else {
         throw error;
       }
@@ -114,12 +113,7 @@ export async function getSessionContext(
 
   let sessionKernel = await getSession(config, req, res);
 
-  if (sessionKernel) {
-    console.log('Got existing session', sessionKernel);
-  }
-
   if (!sessionKernel) {
-    console.log('No session found, creating anonymous session');
     sessionKernel = await createAnonymousSession(config, req, res);
   }
 
@@ -443,7 +437,6 @@ export const setCSRFCookie = (
   antiCSRFToken: string,
   expiresAt: Date
 ) => {
-  console.log('setCSRFCookie', antiCSRFToken);
   setCookie(
     res,
     cookie.serialize(COOKIE_CSRF_TOKEN, antiCSRFToken, {
@@ -500,38 +493,26 @@ export async function getSession(
   const antiCSRFToken = req.headers[HEADER_CSRF] as string;
 
   if (sessionToken) {
-    console.log('[getSession] Request has sessionToken');
     const { handle, version, hashedPublicData } = parseSessionToken(
       sessionToken
     );
 
     if (!handle) {
-      console.log('No handle in sessionToken');
       return null;
     }
 
     if (version !== SESSION_TOKEN_VERSION_0) {
-      console.log(
-        new AuthenticationError(
-          'Session token version is not ' + SESSION_TOKEN_VERSION_0
-        )
-      );
       return null;
     }
 
     const persistedSession = await config.getSession(handle);
     if (!persistedSession) {
-      console.log('Session not found in DB');
       return null;
     }
     if (persistedSession.hashedSessionToken !== hash256(sessionToken)) {
-      console.log('sessionToken hash did not match');
-      console.log('persisted: ', persistedSession.hashedSessionToken);
-      console.log('in req: ', hash256(sessionToken));
       return null;
     }
     if (persistedSession.expiresAt && isPast(persistedSession.expiresAt)) {
-      console.log('Session expired');
       return null;
     }
     if (
@@ -556,9 +537,6 @@ export async function getSession(
       // a request. If so, then we generate a new access token
       const hasPublicDataChanged =
         hash256(persistedSession.publicData) !== hashedPublicData;
-      if (hasPublicDataChanged) {
-        console.log('PublicData has changed since the last request');
-      }
 
       // Check if > 1/4th of the expiry time has passed
       // (since we are doing a rolling expiry window).
@@ -566,11 +544,6 @@ export async function getSession(
         persistedSession.expiresAt &&
         differenceInMinutes(persistedSession.expiresAt, new Date()) <
           0.75 * config.sessionExpiryMinutes;
-
-      if (hasQuarterExpiryTimePassed) {
-        console.log('quarter expiry time has passed');
-        console.log('Persisted expire time', persistedSession.expiresAt);
-      }
 
       if (hasPublicDataChanged || hasQuarterExpiryTimePassed) {
         await refreshSession(
@@ -601,11 +574,9 @@ export async function getSession(
     return null;
     // Important: check anonymousSessionToken token as the very last thing
   } else if (anonymousSessionToken) {
-    console.log('Request has anonymousSessionToken');
     const payload = parseAnonymousSessionToken(anonymousSessionToken);
 
     if (!payload) {
-      console.log('Payload empty');
       return null;
     }
 
@@ -645,7 +616,6 @@ export async function createNewSession(
   const antiCSRFToken = createAntiCSRFToken();
 
   if (opts.anonymous) {
-    console.log('Creating new anonymous session');
     const handle = generateAnonymousSessionHandle();
     const payload: AnonymousSessionPayload = {
       isAnonymous: true,
@@ -677,7 +647,6 @@ export async function createNewSession(
       anonymousSessionToken,
     };
   } else if (config.method === 'essential') {
-    console.log('Creating new session');
     const newPublicData: PublicData = {
       // This carries over any public data from the anonymous session
       ...(opts.jwtPayload?.publicData || {}),
@@ -770,7 +739,6 @@ export async function refreshSession(
   sessionKernel: SessionKernel,
   { publicDataChanged }: { publicDataChanged: boolean }
 ) {
-  console.log('Refreshing session', sessionKernel);
   if (sessionKernel.jwtPayload?.isAnonymous) {
     const payload: AnonymousSessionPayload = {
       ...sessionKernel.jwtPayload,
@@ -810,7 +778,6 @@ export async function refreshSession(
     setPublicDataCookie(config, req, res, publicDataToken, expiresAt);
     setCSRFCookie(config, req, res, sessionKernel.antiCSRFToken, expiresAt);
 
-    console.log('Updating session in db with', { expiresAt });
     if (publicDataChanged) {
       await config.updateSession(sessionKernel.handle, {
         expiresAt,
@@ -855,7 +822,6 @@ export async function revokeSession(
   handle: string,
   anonymous: boolean = false
 ): Promise<void> {
-  console.log('Revoking session', handle);
   if (!anonymous) {
     try {
       await config.deleteSession(handle);
