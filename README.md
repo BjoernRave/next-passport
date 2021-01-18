@@ -1,6 +1,6 @@
 The code is extracted from the `blitz-js` repository. All kudos goes to them: https://blitzjs.com
 
-I basically just extracted everything out and made it work. I didn't test the `passport` stuff yet and there are still some `console.log` in the code.
+This project is not battle-tested in any way, just use it if you know what you are doing!
 
 This project requires you two work with a Next.js application and use Prisma for Database Access.
 
@@ -60,7 +60,9 @@ Signup Example:
 ```typescript
 import { NextApiRequest, NextApiResponse } from 'next'
 import { getSessionContext, hashPassword } from 'next-passport'
-import prisma from 'prisma/lib/prismaInit'
+import { PrismaClient } from '@prisma/client'
+
+const prisma = new PrismaClient()
 
 export default async (req: NextApiRequest, res: NextApiResponse) => {
   const session = await getSessionContext(prisma, req, res)
@@ -92,7 +94,9 @@ Login Example:
 ```typescript
 import { NextApiRequest, NextApiResponse } from 'next'
 import { getSessionContext, authenticateUser } from 'next-passport'
-import prisma from 'prisma/lib/prismaInit'
+import { PrismaClient } from '@prisma/client'
+
+const prisma = new PrismaClient()
 
 export default async (req: NextApiRequest, res: NextApiResponse) => {
   const session = await getSessionContext(prisma, req, res)

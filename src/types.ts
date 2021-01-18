@@ -1,6 +1,6 @@
 import { IncomingMessage, ServerResponse } from 'http';
-import { AuthenticateOptions, Strategy } from 'passport';
 import { NextApiRequest, NextApiResponse } from 'next';
+import { AuthenticateOptions, Strategy } from 'passport';
 
 export interface DefaultPublicData {
   userId: any;
@@ -15,15 +15,15 @@ export type ConnectMiddleware = (
   next: (error?: Error) => void
 ) => void;
 
-export type BlitzPassportStrategy = {
+export type PassportStrategy = {
   authenticateOptions?: AuthenticateOptions;
   strategy: Strategy;
 };
 
-export type BlitzPassportConfig = {
+export type PassportConfig = {
   successRedirectUrl?: string;
   errorRedirectUrl?: string;
-  strategies: BlitzPassportStrategy[];
+  strategies: PassportStrategy[];
   secureProxy?: boolean;
 };
 
