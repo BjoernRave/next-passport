@@ -2,7 +2,7 @@ The code is extracted from the `blitz-js` repository. All kudos goes to them: ht
 
 This project is not battle-tested in any way, just use it if you know what you are doing!
 
-This project requires you two work with a Next.js application and use Prisma for Database Access.
+This project requires you to work with a Next.js application and use Prisma for Database Access.
 
 Because Blitz uses Anti CSRF Measures, we need to attach a header with the key: `anti-csrf` and the value of the `sAntiCrfToken` cookie or add `DISABLE_CSRF_PROTECTION=true` to your env vars, although that's not recommended.
 
