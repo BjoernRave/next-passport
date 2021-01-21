@@ -26,6 +26,7 @@ const isVerifyCallbackResult = (
   typeof value === 'object' && value !== null && 'publicData' in value;
 
 const INTERNAL_REDIRECT_URL_KEY = '_redirectUrl';
+const INTERNAL_STATE_KEY = '_state';
 
 export function passportAuth(prisma: any, config: PassportConfig) {
   return async function authHandler(req: NextApiRequest, res: NextApiResponse) {
@@ -75,6 +76,7 @@ export function passportAuth(prisma: any, config: PassportConfig) {
           assert(session, 'Missing Blitz sessionMiddleware!');
           await session.setPublicData({
             [INTERNAL_REDIRECT_URL_KEY]: req.query.redirectUrl,
+            ...(req.query.state && { [INTERNAL_STATE_KEY]: req.query.state }),
           } as any);
           return next();
         });
@@ -113,6 +115,7 @@ export function passportAuth(prisma: any, config: PassportConfig) {
                   result &&
                   typeof result === 'object' &&
                   (result as any).redirectUrl;
+
                 let redirectUrl: string =
                   redirectUrlFromVerifyResult ||
                   (session.publicData as any)[INTERNAL_REDIRECT_URL_KEY] ||
@@ -124,10 +127,21 @@ export function passportAuth(prisma: any, config: PassportConfig) {
                 if (error) {
                   redirectUrl +=
                     '?authError=' + encodeURIComponent(error.toString());
-                  res.setHeader('Location', redirectUrl);
+
+                  if ((session.publicData as any)[INTERNAL_STATE_KEY]) {
+                    redirectUrl +=
+                      '&state=' + session.publicData[INTERNAL_STATE_KEY];
+                  }
+
+                  res.setHeader('Location', `${redirectUrl}`);
                   res.statusCode = 302;
                   res.end();
                   return;
+                }
+
+                if ((session.publicData as any)[INTERNAL_STATE_KEY]) {
+                  redirectUrl +=
+                    '?state=' + session.publicData[INTERNAL_STATE_KEY];
                 }
 
                 assert(
@@ -136,6 +150,7 @@ export function passportAuth(prisma: any, config: PassportConfig) {
                 );
 
                 delete (result.publicData as any)[INTERNAL_REDIRECT_URL_KEY];
+                delete (result.publicData as any)[INTERNAL_STATE_KEY];
 
                 await session.create(result.publicData, result.privateData);
 

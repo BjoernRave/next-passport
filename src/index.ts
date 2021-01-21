@@ -3,5 +3,5 @@ export { COOKIE_CSRF_TOKEN, HEADER_CSRF } from './constants';
 export { AuthenticationError } from './errors';
 export { passportAuth } from './passportAuth';
 export { getSessionContext } from './session';
-export { SessionContext } from './supertokens';
+export { getAntiCSRFToken, SessionContext } from './supertokens';
 export { PassportConfig, PassportStrategy } from './types';
