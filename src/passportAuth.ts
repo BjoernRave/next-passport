@@ -133,6 +133,7 @@ export function passportAuth(prisma: any, config: PassportConfig) {
                       '&state=' + session.publicData[INTERNAL_STATE_KEY];
                   }
 
+                  console.log('Due to error Redirecting to: ', redirectUrl);
                   res.setHeader('Location', `${redirectUrl}`);
                   res.statusCode = 302;
                   res.end();
@@ -153,7 +154,7 @@ export function passportAuth(prisma: any, config: PassportConfig) {
                 delete (result.publicData as any)[INTERNAL_STATE_KEY];
 
                 await session.create(result.publicData, result.privateData);
-
+                console.log('Redirecting to: ', redirectUrl);
                 res.setHeader('Location', redirectUrl);
                 res.statusCode = 302;
                 res.end();
